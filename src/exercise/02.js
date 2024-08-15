@@ -1,7 +1,7 @@
 // useCallback: custom hooks
 // http://localhost:3000/isolated/exercise/02.js
 
-import {useCallback, useEffect, useState, useReducer} from 'react'
+import {useCallback, useEffect, useState, useReducer, useRef} from 'react'
 
 import {
   fetchPokemon,
@@ -36,13 +36,19 @@ function useAsync(initialState) {
     ...initialState,
   })
 
+  const controllerRef = useRef()
+  controllerRef.current = new AbortController()
+  const signal = controllerRef.current.signal
+
   const run = useCallback(promise => {
+    if (controllerRef.current) controllerRef.current.abort()
     dispatch({type: 'pending'})
     promise
       .then(data => {
         dispatch({type: 'resolved', data})
       })
       .catch(error => dispatch({type: 'rejected', error}))
+    signal
   }, [])
 
   return {...state, run}

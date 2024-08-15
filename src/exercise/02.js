@@ -1,7 +1,7 @@
 // useCallback: custom hooks
 // http://localhost:3000/isolated/exercise/02.js
 
-import {useEffect, useState, useReducer} from 'react'
+import {useCallback, useEffect, useState, useReducer} from 'react'
 
 import {
   fetchPokemon,
@@ -11,7 +11,7 @@ import {
   PokemonErrorBoundary,
 } from '../pokemon'
 
-function pokemonInfoReducer(state, action) {
+function asyncReducer(state, action) {
   switch (action.type) {
     case 'pending': {
       return {status: 'pending', data: null, error: null}
@@ -28,8 +28,8 @@ function pokemonInfoReducer(state, action) {
   }
 }
 
-function useAsync(asyncCallback, initialState, dependencies) {
-  const [state, dispatch] = useReducer(pokemonInfoReducer, initialState)
+function useAsync(asyncCallback, initialState) {
+  const [state, dispatch] = useReducer(asyncReducer, initialState)
 
   useEffect(() => {
     const promise = asyncCallback()
@@ -39,24 +39,24 @@ function useAsync(asyncCallback, initialState, dependencies) {
         dispatch({type: 'resolved', data})
       })
       .catch(error => dispatch({type: 'rejected', error}))
-  }, dependencies)
+  })
+
   return state
 }
 
 function PokemonInfo({pokemonName}) {
   const state = useAsync(
-    () => {
+    useCallback(() => {
       if (!pokemonName) {
         return
       }
       return fetchPokemon(pokemonName)
-    },
+    }, [pokemonName]),
     {
       status: pokemonName ? 'pending' : 'idle',
       data: null,
       error: null,
     },
-    [pokemonName],
   )
   const {status, data, error} = state
 

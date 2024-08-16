@@ -38,7 +38,7 @@ function useAsync(initialState) {
 
   const controllerRef = useRef()
   controllerRef.current = new AbortController()
-  const signal = controllerRef.current.signal
+  // const signal = controllerRef.current.signal
 
   const run = useCallback(promise => {
     if (controllerRef.current) controllerRef.current.abort()
@@ -48,7 +48,7 @@ function useAsync(initialState) {
         dispatch({type: 'resolved', data})
       })
       .catch(error => dispatch({type: 'rejected', error}))
-    signal
+    // signal
   }, [])
 
   return {...state, run}

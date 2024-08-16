@@ -5,9 +5,57 @@ import {createContext, useContext, useState} from 'react'
 
 const CountContext = createContext()
 
+function useCount(context) {
+  const data = useContext(context)
+
+  if (data === undefined) {
+    throw new Error('You cannot use useCount outside a child of CountProvider')
+  }
+
+  return data
+}
+/**
+ *
+ *   LOCKER CONTEXT START : if a component is not a child of CONTEXTPROVIDER,
+ *   then that component does not have access to CONTEXT's VALUE,
+ *   which is set in CONTEXT.PROVIDER
+ *
+ */
+// const Locker = createContext()
+// function useLocker() {
+//   const lockerContents = useContext(Locker)
+//   if (lockerContents === undefined) {
+//     throw new Error("You can't get into this locker.")
+//   }
+
+//   return lockerContents
+// }
+
+// function LockerCode(props) {
+//   const lockerContents = {
+//     snack: 'gummies',
+//     book: 'textbooks',
+//     backups: 'pencils',
+//     money: 20,
+//     isClean: true,
+//     textbooks: ['history', 'math', 'science'],
+//   }
+
+//   return <Locker.Provider value={lockerContents} {...props} />
+// }
+// function Ish() {
+//   const lockerContents = useLocker()
+
+//   return <div>I have ${lockerContents.money} in my locker.</div>
+// }
+/**
+ *
+ *   LOCKER CONTEXT END
+ *
+ */
+
 function CountProvider({children, ...restProps}) {
   const [count, setCount] = useState(0)
-
   const value = [count, setCount]
 
   return (
@@ -17,27 +65,16 @@ function CountProvider({children, ...restProps}) {
   )
 }
 
-// 🐨 create your CountContext here with React.createContext
-
-// 🐨 create a CountProvider component here that does this:
-//   🐨 get the count state and setCount updater with React.useState
-//   🐨 create a `value` array with count and setCount
-//   🐨 return your context provider with the value assigned to that array and forward all the other props
-//   💰 more specifically, we need the children prop forwarded to the context provider
-
 function CountDisplay() {
-  const [count] = useContext(CountContext)
+  const [count] = useCount(CountContext)
   console.log(count)
-  // 🐨 get the count from useContext with the CountContext
-  // const count = 0
+
   return <div>{`The current count is ${count}`}</div>
 }
 
 function Counter() {
-  const [, setCount] = useContext(CountContext)
+  const [, setCount] = useCount(CountContext)
 
-  // 🐨 get the setCount from useContext with the CountContext
-  // const setCount = () => {}
   const increment = () => setCount(c => c + 1)
   return <button onClick={increment}>Increment count</button>
 }

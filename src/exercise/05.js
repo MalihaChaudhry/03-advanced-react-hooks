@@ -1,25 +1,28 @@
 // useImperativeHandle: scroll to top/bottom
 // http://localhost:3000/isolated/exercise/05.js
 
-import * as React from 'react'
+import {
+  forwardRef,
+  useImperativeHandle,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react'
 
-// 🐨 wrap this in a React.forwardRef and accept `ref` as the second argument
-function MessagesDisplay({messages}) {
-  const containerRef = React.useRef()
-  React.useLayoutEffect(() => {
-    scrollToBottom()
+const MessagesDisplay = forwardRef(({messages}, ref) => {
+  const containerRef = useRef()
+  useLayoutEffect(() => {
+    containerRef.current.scrollTop = containerRef.current.scrollHeight
   })
 
-  // 💰 you're gonna want this as part of your imperative methods
-  // function scrollToTop() {
-  //   containerRef.current.scrollTop = 0
-  // }
-  function scrollToBottom() {
-    containerRef.current.scrollTop = containerRef.current.scrollHeight
-  }
-
-  // 🐨 call useImperativeHandle here with your ref and a callback function
-  // that returns an object with scrollToTop and scrollToBottom
+  useImperativeHandle(ref, () => ({
+    scrollToTop: () => {
+      containerRef.current.scrollTop = 0
+    },
+    scrollToBottom: () => {
+      containerRef.current.scrollTop = containerRef.current.scrollHeight
+    },
+  }))
 
   return (
     <div ref={containerRef} role="log">
@@ -31,11 +34,11 @@ function MessagesDisplay({messages}) {
       ))}
     </div>
   )
-}
+})
 
 function App() {
-  const messageDisplayRef = React.useRef()
-  const [messages, setMessages] = React.useState(allMessages.slice(0, 8))
+  const messageDisplayRef = useRef()
+  const [messages, setMessages] = useState(allMessages.slice(0, 8))
   const addMessage = () =>
     messages.length < allMessages.length
       ? setMessages(allMessages.slice(0, messages.length + 1))
